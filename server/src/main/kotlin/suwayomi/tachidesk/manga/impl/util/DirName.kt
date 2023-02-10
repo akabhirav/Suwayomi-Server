@@ -31,7 +31,7 @@ fun getMangaDir(mangaId: Int, cache: Boolean = false): String {
     return (if (cache) applicationDirs.cacheRoot else applicationDirs.mangaDownloadsRoot) + "/$sourceDir/$mangaDir"
 }
 
-fun getChapterDir(mangaId: Int, chapterId: Int, cache: Boolean = false): String {
+fun getChapterDirPath(mangaId: Int, chapterId: Int, cache: Boolean = false): String {
     val chapterEntry = transaction { ChapterTable.select { ChapterTable.id eq chapterId }.first() }
 
     val chapterDir = SafePath.buildValidFilename(
@@ -42,6 +42,11 @@ fun getChapterDir(mangaId: Int, chapterId: Int, cache: Boolean = false): String 
     )
 
     return getMangaDir(mangaId, cache) + "/$chapterDir"
+}
+
+fun getChapterCbzPath(mangaId: Int, chapterId: Int): String {
+    val chapterDir = getChapterDirPath(mangaId, chapterId)
+    return "$chapterDir.cbz"
 }
 
 /** return value says if rename/move was successful */

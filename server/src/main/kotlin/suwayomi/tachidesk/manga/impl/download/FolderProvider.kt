@@ -12,7 +12,7 @@ import kotlinx.coroutines.withContext
 import suwayomi.tachidesk.manga.impl.Page
 import suwayomi.tachidesk.manga.impl.Page.getPageName
 import suwayomi.tachidesk.manga.impl.download.model.DownloadChapter
-import suwayomi.tachidesk.manga.impl.util.getChapterDir
+import suwayomi.tachidesk.manga.impl.util.getChapterDirPath
 import suwayomi.tachidesk.manga.impl.util.storage.ImageResponse
 import java.io.File
 import java.io.FileInputStream
@@ -24,7 +24,7 @@ import kotlin.reflect.KSuspendFunction2
 * */
 class FolderProvider(mangaId: Int, chapterId: Int) : DownloadedFilesProvider(mangaId, chapterId) {
     override fun getImage(index: Int): Pair<InputStream, String> {
-        val chapterDir = getChapterDir(mangaId, chapterId)
+        val chapterDir = getChapterDirPath(mangaId, chapterId)
         val folder = File(chapterDir)
         folder.mkdirs()
         val file = folder.listFiles()?.get(index)
@@ -36,10 +36,10 @@ class FolderProvider(mangaId: Int, chapterId: Int) : DownloadedFilesProvider(man
     override suspend fun download(
         download: DownloadChapter,
         scope: CoroutineScope,
-        step: KSuspendFunction2<DownloadChapter?, Boolean, Unit>
+        step: KSuspendFunction2<DownloadChapter?, Boolean, Unit>,
     ): Boolean {
         val pageCount = download.chapter.pageCount
-        val chapterDir = getChapterDir(mangaId, chapterId)
+        val chapterDir = getChapterDirPath(mangaId, chapterId)
         val folder = File(chapterDir)
         folder.mkdirs()
 
@@ -80,7 +80,7 @@ class FolderProvider(mangaId: Int, chapterId: Int) : DownloadedFilesProvider(man
     }
 
     override fun delete(): Boolean {
-        val chapterDir = getChapterDir(mangaId, chapterId)
+        val chapterDir = getChapterDirPath(mangaId, chapterId)
         return File(chapterDir).deleteRecursively()
     }
 

@@ -9,7 +9,7 @@ package suwayomi.tachidesk.manga.impl.util.storage
 
 import okhttp3.Response
 import okhttp3.internal.closeQuietly
-import suwayomi.tachidesk.manga.impl.util.getChapterDir
+import suwayomi.tachidesk.manga.impl.util.getChapterDirPath
 import java.io.File
 import java.io.FileInputStream
 import java.io.InputStream
@@ -103,7 +103,7 @@ object ImageResponse {
     suspend fun getImageResponse(mangaId: Int, chapterId: Int, fileName: String, useCache: Boolean, fetcher: suspend () -> Response): Pair<InputStream, String> {
         var saveDir = ""
         if (useCache) {
-            saveDir = getChapterDir(mangaId, chapterId, true)
+            saveDir = getChapterDirPath(mangaId, chapterId, true)
             File(saveDir).mkdirs()
         }
         return getImageResponse(saveDir, fileName, useCache, fetcher)

@@ -17,7 +17,7 @@ import org.jetbrains.exposed.sql.SortOrder.ASC
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.transaction
 import suwayomi.tachidesk.manga.impl.Manga.getManga
-import suwayomi.tachidesk.manga.impl.util.getChapterDir
+import suwayomi.tachidesk.manga.impl.util.getChapterDirPath
 import suwayomi.tachidesk.manga.impl.util.lang.awaitSingle
 import suwayomi.tachidesk.manga.impl.util.source.GetCatalogueSource.getCatalogueSourceOrStub
 import suwayomi.tachidesk.manga.model.dataclass.ChapterDataClass
@@ -329,7 +329,7 @@ object Chapter {
                     .forEach { row ->
                         val chapterMangaId = row[ChapterTable.manga].value
                         val chapterId = row[ChapterTable.id].value
-                        val chapterDir = getChapterDir(chapterMangaId, chapterId)
+                        val chapterDir = getChapterDirPath(chapterMangaId, chapterId)
                         File(chapterDir).deleteRecursively()
                     }
 
@@ -343,7 +343,7 @@ object Chapter {
                     .select { (ChapterTable.sourceOrder inList input.chapterIndexes) and (ChapterTable.manga eq mangaId) }
                     .map { row ->
                         val chapterId = row[ChapterTable.id].value
-                        val chapterDir = getChapterDir(mangaId, chapterId)
+                        val chapterDir = getChapterDirPath(mangaId, chapterId)
                         File(chapterDir).deleteRecursively()
                         chapterId
                     }
