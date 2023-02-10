@@ -31,7 +31,7 @@ private fun getMangaDir(mangaId: Int): String {
     return "$sourceDir/$mangaDir"
 }
 
-private fun getChapterDir(mangaId: Int, chapterId: Int): String {
+private fun getChapterDir(mangaId: Int, chapterId: Int, underScorePath: Boolean = false): String {
     val chapterEntry = transaction { ChapterTable.select { ChapterTable.id eq chapterId }.first() }
 
     val chapterDir = SafePath.buildValidFilename(
@@ -41,15 +41,15 @@ private fun getChapterDir(mangaId: Int, chapterId: Int): String {
         }
     )
 
-    return getMangaDir(mangaId) + "/$chapterDir"
+    return getMangaDir(mangaId) + (if (underScorePath) "/_$chapterDir" else "/$chapterDir")
 }
 
-fun getChapterDownloadPath(mangaId: Int, chapterId: Int): String {
-    return applicationDirs.mangaDownloadsRoot + "/" + getChapterDir(mangaId, chapterId)
+fun getChapterDownloadPath(mangaId: Int, chapterId: Int, underScorePath: Boolean = false): String {
+    return applicationDirs.mangaDownloadsRoot + "/" + getChapterDir(mangaId, chapterId, underScorePath)
 }
 
-fun getChapterCbzPath(mangaId: Int, chapterId: Int): String {
-    return getChapterDownloadPath(mangaId, chapterId) + ".cbz"
+fun getChapterCbzPath(mangaId: Int, chapterId: Int, underScorePath: Boolean = false): String {
+    return getChapterDownloadPath(mangaId, chapterId, underScorePath) + ".cbz"
 }
 
 fun getChapterCachePath(mangaId: Int, chapterId: Int): String {

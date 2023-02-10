@@ -30,8 +30,14 @@ class ArchiveProvider(mangaId: Int, chapterId: Int) : DownloadedFilesProvider(ma
     ): Boolean {
         val chapterDir = getChapterDownloadPath(mangaId, chapterId)
         val outputFile = File(getChapterCbzPath(mangaId, chapterId))
+        val otherOutputFile = File(getChapterCbzPath(mangaId, chapterId, true))
         val chapterFolder = File(chapterDir)
-        if (outputFile.exists()) handleExistingCbzFile(outputFile, chapterFolder)
+
+        if (outputFile.exists()) {
+            handleExistingCbzFile(outputFile, chapterFolder)
+        } else if (otherOutputFile.exists()) {
+            handleExistingCbzFile(otherOutputFile, chapterFolder)
+        }
 
         withContext(Dispatchers.IO) {
             outputFile.createNewFile()
