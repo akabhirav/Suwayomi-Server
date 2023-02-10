@@ -9,11 +9,15 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.sample
 import kotlinx.coroutines.withContext
+import org.jetbrains.exposed.sql.SortOrder
+import org.jetbrains.exposed.sql.select
+import org.jetbrains.exposed.sql.transactions.transaction
 import suwayomi.tachidesk.manga.impl.Page
 import suwayomi.tachidesk.manga.impl.Page.getPageName
 import suwayomi.tachidesk.manga.impl.download.model.DownloadChapter
 import suwayomi.tachidesk.manga.impl.util.getChapterDirPath
 import suwayomi.tachidesk.manga.impl.util.storage.ImageResponse
+import suwayomi.tachidesk.manga.model.table.PageTable
 import java.io.File
 import java.io.FileInputStream
 import java.io.InputStream
@@ -36,7 +40,7 @@ class FolderProvider(mangaId: Int, chapterId: Int) : DownloadedFilesProvider(man
     override suspend fun download(
         download: DownloadChapter,
         scope: CoroutineScope,
-        step: KSuspendFunction2<DownloadChapter?, Boolean, Unit>,
+        step: KSuspendFunction2<DownloadChapter?, Boolean, Unit>
     ): Boolean {
         val pageCount = download.chapter.pageCount
         val chapterDir = getChapterDirPath(mangaId, chapterId)
@@ -45,7 +49,14 @@ class FolderProvider(mangaId: Int, chapterId: Int) : DownloadedFilesProvider(man
 
         for (pageNum in 0 until pageCount) {
             var pageProgressJob: Job? = null
-            val fileName = getPageName(pageNum) // might have to change this to index stored in database
+
+            val pageEntry = transaction {
+                PageTable.select { (PageTable.chapter eq chapterId) }
+                    .orderBy(PageTable.index to SortOrder.ASC)
+                    .limit(1, pageNum.toLong()).first()
+            }
+
+            val fileName = getPageName(pageEntry[PageTable.index]) // might have to change this to index stored in database
             if (isExistingFile(folder, fileName)) continue
             try {
                 val image = Page.getPageImage(

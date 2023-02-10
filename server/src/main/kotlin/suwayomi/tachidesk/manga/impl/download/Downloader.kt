@@ -22,10 +22,7 @@ import org.jetbrains.exposed.sql.update
 import suwayomi.tachidesk.manga.impl.ChapterDownloadHelper
 import suwayomi.tachidesk.manga.impl.chapter.getChapterDownloadReady
 import suwayomi.tachidesk.manga.impl.download.model.DownloadChapter
-import suwayomi.tachidesk.manga.impl.download.model.DownloadState.Downloading
-import suwayomi.tachidesk.manga.impl.download.model.DownloadState.Error
-import suwayomi.tachidesk.manga.impl.download.model.DownloadState.Finished
-import suwayomi.tachidesk.manga.impl.download.model.DownloadState.Queued
+import suwayomi.tachidesk.manga.impl.download.model.DownloadState.*
 import suwayomi.tachidesk.manga.model.table.ChapterTable
 import java.util.concurrent.CopyOnWriteArrayList
 

@@ -18,19 +18,23 @@ class ArchiveProvider(mangaId: Int, chapterId: Int) : DownloadedFilesProvider(ma
     override fun getImage(index: Int): Pair<InputStream, String> {
         val cbzPath = getChapterCbzPath(mangaId, chapterId)
         val zipFile = ZipFile(cbzPath)
-        zipFile.entries().toList()
         val zipEntry = zipFile.entries().toList().sortedWith(compareBy({ it.name }, { it.name }))[index]
         val inputStream = zipFile.getInputStream(zipEntry)
-        return Pair(inputStream, zipEntry.name)
+        val fileType = zipEntry.name.substringAfterLast(".")
+        return Pair(inputStream.buffered(), "image/$fileType")
     }
 
     override suspend fun download(download: DownloadChapter, scope: CoroutineScope, step: KSuspendFunction2<DownloadChapter?, Boolean, Unit>): Boolean {
         val chapterDir = getChapterDirPath(mangaId, chapterId)
         val outputFile = File(getChapterCbzPath(mangaId, chapterId))
         val chapterFolder = File(chapterDir)
-        if (outputFile.exists()) withContext(Dispatchers.IO) {
-            outputFile.createNewFile()
-        } else handleExistingCbzFile(outputFile, chapterFolder)
+        if (outputFile.exists()) {
+            handleExistingCbzFile(outputFile, chapterFolder)
+        } else {
+            withContext(Dispatchers.IO) {
+                outputFile.createNewFile()
+            }
+        }
 
         FolderProvider(mangaId, chapterId).download(download, scope, step)
 
@@ -58,7 +62,7 @@ class ArchiveProvider(mangaId: Int, chapterId: Int) : DownloadedFilesProvider(ma
         return false
     }
 
-    private fun handleExistingCbzFile(cbzFile: File, chapterFolder: File){
+    private fun handleExistingCbzFile(cbzFile: File, chapterFolder: File) {
         if (!chapterFolder.exists()) chapterFolder.mkdirs()
         ZipInputStream(cbzFile.inputStream()).use { zipInputStream ->
             var zipEntry = zipInputStream.nextEntry

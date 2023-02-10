@@ -74,6 +74,12 @@ object Page {
             return imageFile.inputStream() to (ImageUtil.findImageType { imageFile.inputStream() }?.mime ?: "image/jpeg")
         }
 
+        val fileName = getPageName(index)
+
+        if (chapterEntry[ChapterTable.isDownloaded]) {
+            return ChapterDownloadHelper.getImage(mangaId, chapterId, index)
+        }
+
         source as HttpSource
 
         if (pageEntry[PageTable.imageUrl] == null) {
@@ -83,12 +89,6 @@ object Page {
                     it[imageUrl] = trueImageUrl
                 }
             }
-        }
-
-        val fileName = getPageName(index)
-
-        if (chapterEntry[ChapterTable.isDownloaded]) {
-            return ChapterDownloadHelper.getImage(mangaId, chapterId, index)
         }
 
         return getImageResponse(mangaId, chapterId, fileName, useCache) {
