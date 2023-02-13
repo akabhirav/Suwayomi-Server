@@ -39,11 +39,11 @@ class ArchiveProvider(mangaId: Int, chapterId: Int) : DownloadedFilesProvider(ma
             handleExistingCbzFile(otherOutputFile, chapterFolder)
         }
 
+        FolderProvider(mangaId, chapterId).download(download, scope, step)
+
         withContext(Dispatchers.IO) {
             outputFile.createNewFile()
         }
-
-        FolderProvider(mangaId, chapterId).download(download, scope, step)
 
         ZipOutputStream(outputFile.outputStream()).use { zipOut ->
             if (chapterFolder.isDirectory) {
